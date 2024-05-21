@@ -4,6 +4,23 @@ This is an official re-implementation of PEneo introduced in the paper *PEneo: U
 
 > Codes in this repository have undergone modifications from our original implementation to enhance its usability and comprehensibility for the open-source community. As a result, slight performance variations on the benchmarks may be observed.
 
+
+# Installation
+
+```bash
+conda create -n vie python=3.10
+conda activate vie
+pip install -r requirements.txt
+```
+
+If you want to use layoutlmv2/layoutxlm backbone, please install detectron2 additionally:
+
+```bash
+python -m pip install 'git+https://github.com/facebookresearch/detectron2.git'
+```
+
+
+
 ## Citation
 
 If you find PEneo helpful, please consider citing our paper:
