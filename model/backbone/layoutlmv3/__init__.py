@@ -5,6 +5,11 @@ Codes in this folder are all copied from the official implementation of LayoutLM
 
 https://github.com/microsoft/unilm/tree/master/layoutlmv3
 
+To ensure compatibility across Document AI backbones, 
+the visual attention mask will be automatically generated during the forward pass.
+Therefore, there is no need to manually construct a mask 
+during the preprocessing phase.
+
 It is observed that this version has faster forward speed
 than the Huggingface Transformers implementation. Therefore, we use the
 official version for our model.

@@ -1070,6 +1070,8 @@ class LayoutLMv3Model(LayoutLMv3PreTrainedModel):
                 )
             else:
                 # * adaptation for VIE unified pipeline
+                # * Generate visual attention mask automatically to ensure
+                # * compatibility across different backbones
                 visual_attention_mask = torch.ones(
                     (batch_size, visual_emb.shape[1]), dtype=torch.long, device=device
                 )
