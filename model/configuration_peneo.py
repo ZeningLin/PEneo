@@ -18,6 +18,7 @@ class PEneoConfig(PretrainedConfig):
         peneo_ohem_num_positive: int = -1,
         peneo_ohem_num_negative: int = -1,
         peneo_downstream_speedup_ratio: float = 1.0,
+        export_onnx: bool = False,
         **kwargs,
     ):
         super().__init__(**kwargs)
@@ -32,3 +33,5 @@ class PEneoConfig(PretrainedConfig):
         self.peneo_ohem_num_positive = peneo_ohem_num_positive
         self.peneo_ohem_num_negative = peneo_ohem_num_negative
         self.peneo_downstream_speedup_ratio = peneo_downstream_speedup_ratio
+
+        self.export_onnx = export_onnx
