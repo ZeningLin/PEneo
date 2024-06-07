@@ -320,6 +320,14 @@ class SIBRDataset(Dataset):
                 answer_last_line_sorted_id
             ].sorted_end_token
 
+            if (
+                from_line_start_token is None
+                or from_line_end_token is None
+                or to_line_start_token is None
+                or to_line_end_token is None
+            ):
+                continue
+
             if question_first_line_start_token < answer_first_line_start_token:
                 ent_linking_head_rel_matrix_spots.append(
                     (

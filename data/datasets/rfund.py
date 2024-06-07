@@ -9,7 +9,6 @@ from transformers import AutoTokenizer, PreTrainedTokenizerFast, ProcessorMixin
 from ..data_utils import box_augmentation, normalize_bbox, sort_boxes, string_f2h
 
 
-
 @dataclass
 class LineInfo:
     center_x: int
@@ -401,6 +400,14 @@ class RFUNDDataset(Dataset):
                 to_line_sorted_id
             ].sorted_start_token
             to_line_end_token = all_sorted_line_list[to_line_sorted_id].sorted_end_token
+
+            if (
+                from_line_start_token is None
+                or from_line_end_token is None
+                or to_line_start_token is None
+                or to_line_end_token is None
+            ):
+                continue
 
             if from_line_start_token < to_line_start_token:
                 line_grouping_head_rel_matrix_spots.append(
