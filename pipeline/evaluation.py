@@ -266,8 +266,16 @@ def calculate_detail_KVPE_metric(
         ) = _calculate_KV_metric_core(pred_lines, gt_lines, return_detail=False)
 
         # entity linking head metric
-        pred_ent_linking_heads = [(k, v) for k, v in pred_ent_linking_heads.items()]
-        gt_ent_linking_heads = [(k, v) for k, v in gt_ent_linking_heads.items()]
+        pred_ent_linking_heads_ = []
+        for k, vs in pred_ent_linking_heads.items():
+            for v in vs:
+                pred_ent_linking_heads_.append((k, v))
+        pred_ent_linking_heads = pred_ent_linking_heads_
+        gt_ent_linking_heads_ = []
+        for k, vs in gt_ent_linking_heads.items():
+            for v in vs:
+                gt_ent_linking_heads_.append((k, v))
+        gt_ent_linking_heads = gt_ent_linking_heads_
         (
             sample_ent_linking_head_precision,
             sample_ent_linking_head_recall,
@@ -278,8 +286,16 @@ def calculate_detail_KVPE_metric(
         ) = _calculate_linking_metric_core(pred_ent_linking_heads, gt_ent_linking_heads)
 
         # entity linking tail metric
-        pred_ent_linking_tails = [(k, v) for k, v in pred_ent_linking_tails.items()]
-        gt_ent_linking_tails = [(k, v) for k, v in gt_ent_linking_tails.items()]
+        pred_ent_linking_tails_ = []
+        for k, vs in pred_ent_linking_tails.items():
+            for v in vs:
+                pred_ent_linking_tails_.append((k, v))
+        pred_ent_linking_tails = pred_ent_linking_tails_
+        gt_ent_linking_tails_ = []
+        for k, vs in gt_ent_linking_tails.items():
+            for v in vs:
+                gt_ent_linking_tails_.append((k, v))
+        gt_ent_linking_tails = gt_ent_linking_tails_
         (
             sample_ent_linking_tail_precision,
             sample_ent_linking_tail_recall,

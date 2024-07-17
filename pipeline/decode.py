@@ -36,7 +36,10 @@ def parse_matrix_spots(
             head_idx, tail_idx = tail_idx, head_idx
 
         if not top_score_only:
-            spot_map[head_idx] = tail_idx
+            if head_idx in spot_map.keys():
+                spot_map[head_idx].append(tail_idx)
+            else:
+                spot_map[head_idx] = [tail_idx]
         else:
             if head_idx not in spot_map.keys():
                 spot_map[head_idx] = (tail_idx, score)
@@ -45,7 +48,16 @@ def parse_matrix_spots(
                     spot_map[head_idx] = (tail_idx, score)
 
     if top_score_only:
-        spot_map = {k: v[0] for k, v in spot_map.items()}
+        # each element has only one input and only one output
+        reverse_map = {}
+        for k, (v, s) in spot_map.items():
+            if v not in reverse_map.keys():
+                reverse_map[v] = (k, s)
+            else:
+                if s > reverse_map[v][1]:
+                    reverse_map[v] = (k, s)
+
+        spot_map = {k[0]: v for v, k in reverse_map.items()}
 
     return spot_map
 
@@ -151,9 +163,6 @@ def sample_decode_peneo(
         top_score_only=False if decode_gt else True,
         triu_mode=False,
     )
-    parsed_lines = []
-    for start_id, end_id in line_extraction_memory_dict.items():
-        parsed_lines.append("".join(text[start_id : end_id + 1]))
 
     # parse line-grouping results
     line_grouping_tail_rel_memory_dict = parse_matrix_spots(
@@ -166,6 +175,21 @@ def sample_decode_peneo(
         top_score_only=False if decode_gt else True,
         triu_mode=True,
     )
+
+    if decode_gt:
+        line_extraction_memory_dict = {
+            k: v[0] for k, v in line_extraction_memory_dict.items()
+        }
+        line_grouping_tail_rel_memory_dict = {
+            k: v[0] for k, v in line_grouping_tail_rel_memory_dict.items()
+        }
+        line_grouping_head_rel_memory_dict = {
+            k: v[0] for k, v in line_grouping_head_rel_memory_dict.items()
+        }
+
+    parsed_lines = []
+    for start_id, end_id in line_extraction_memory_dict.items():
+        parsed_lines.append("".join(text[start_id : end_id + 1]))
 
     # parse entity-linking results,
     # then extract kv-pair
@@ -181,7 +205,10 @@ def sample_decode_peneo(
         if tag == 2:
             key_head_idx, value_head_idx = value_head_idx, key_head_idx
 
-        entity_head_rel_memory_dict[key_head_idx] = value_head_idx
+        if key_head_idx in entity_head_rel_memory_dict.keys():
+            entity_head_rel_memory_dict[key_head_idx].append(value_head_idx)
+        else:
+            entity_head_rel_memory_dict[key_head_idx] = [value_head_idx]
 
         key_first_line_tail_idx = line_extraction_memory_dict.get(key_head_idx, None)
         if key_first_line_tail_idx is None:
@@ -270,8 +297,13 @@ def sample_decode_peneo(
             )
 
         # check validation of key-value pair
-        valid_value_tail = entity_tail_rel_memory_dict.get(key_curr_line_tail_idx, None)
-        if value_curr_line_tail_idx == valid_value_tail:
+        valid_value_tails = entity_tail_rel_memory_dict.get(
+            key_curr_line_tail_idx, None
+        )
+        if (
+            valid_value_tails is not None
+            and value_curr_line_tail_idx in valid_value_tails
+        ):
             key_text = "".join(key_text_list).strip()
             value_text = "".join(value_text_list).strip()
 
