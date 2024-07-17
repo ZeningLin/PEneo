@@ -308,10 +308,10 @@ BACKBONE_MAPPING = {
         has_visual_embeds=True,
         tokenizer_fetcher=fetcher_XLMTokenizer,
     ),
-    "layoutlmv2-base": BackboneInfo(
+    "layoutlmv2-base-uncased": BackboneInfo(
         model=LayoutLMv2Model,
         config=LayoutLMv2Config,
-        hf_name="microsoft/layoutlmv2-base",
+        hf_name="microsoft/layoutlmv2-base-uncased",
         processor=LayoutLMv2Processor,
         image_processor=LayoutLMv2ImageProcessor,
         max_token_len=511,
