@@ -124,7 +124,7 @@ class HandshakingKernel(nn.Module):
     def __init__(self, hidden_size: int) -> None:
         super().__init__()
         self.combine_fc = nn.Linear(hidden_size * 2, hidden_size)
-        self.nonlinear = nn.SiLU()
+        self.activation = nn.Tanh()
 
     def forward(self, seq_hiddens: torch.Tensor) -> torch.Tensor:
         """Apply pairwise token concatenation and return the flattened
@@ -152,7 +152,7 @@ class HandshakingKernel(nn.Module):
         triu_index = seq_len * triu_index[0] + triu_index[1]
         shaking_matrix = shaking_matrix.flatten(-2)[..., triu_index]
         shaking_matrix = shaking_matrix.permute(0, 2, 1)
-        shaking_matrix = self.nonlinear(self.combine_fc(shaking_matrix))
+        shaking_matrix = self.activation(self.combine_fc(shaking_matrix))
 
         return shaking_matrix
 
@@ -194,10 +194,10 @@ class PEneoDecoder(nn.Module):
             decoder_hidden_size = backbone_hidden_size // 2
             self.shrink_projection = nn.Sequential(
                 nn.Linear(input_size, backbone_hidden_size),
-                nn.SiLU(),
+                nn.ReLU(),
                 nn.Dropout(backbone_hidden_dropout_prob),
                 nn.Linear(backbone_hidden_size, decoder_hidden_size),
-                nn.SiLU(),
+                nn.ReLU(),
                 nn.Dropout(backbone_hidden_dropout_prob),
             )
         else:
@@ -210,7 +210,7 @@ class PEneoDecoder(nn.Module):
             input_size: int,
             output_size: int,
             mid_size: int = None,
-            activation: nn.Module = nn.SiLU(),
+            activation: nn.Module = nn.ReLU(),
         ) -> nn.Module:
             """Construct linear classifier
 
@@ -225,7 +225,7 @@ class PEneoDecoder(nn.Module):
                 is set to mid_size. If None, mid_size is set to input_size // 2
                 By default None
             activation : nn.Module, optional
-                activation function, by default nn.SiLU()
+                activation function, by default nn.ReLU()
 
             """
             if config.peneo_classifier_num_layers == 1:
