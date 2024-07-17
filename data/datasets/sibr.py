@@ -6,19 +6,15 @@ from typing import Callable, Dict, List, Optional, Union
 from torch.utils.data.dataset import Dataset
 from transformers import AutoTokenizer, PreTrainedTokenizerFast, ProcessorMixin
 
-from ..data_utils import box_augmentation, normalize_bbox, sort_boxes, string_f2h
-
+from ..data_utils import box_augmentation, normalize_bbox, sort_boxes
 
 
 @dataclass
 class LineInfo:
-    center_x: int
-    center_y: int
     coords: List[float]
     tokens: List[str]
     sos_processed_tokens: List[str]
     category: str
-    entity_first_line: bool
     orig_entity_id: str
     orig_line_id: str
     orig_next_line: int = None
@@ -163,13 +159,8 @@ class SIBRDataset(Dataset):
                         else:
                             line_top = line_bottom - 1
 
-                line_center_x = (line_left + line_right) / 2
-                line_center_y = (line_top + line_bottom) / 2
-
                 all_orig_line_list.append(
                     LineInfo(
-                        center_x=line_center_x,
-                        center_y=line_center_y,
                         coords=[
                             line_left,
                             line_top,
@@ -179,7 +170,6 @@ class SIBRDataset(Dataset):
                         tokens=line_tokens,
                         sos_processed_tokens=line_sos_processed_tokens,
                         category=entity_info["label"],
-                        entity_first_line=(first_line_flag),
                         orig_entity_id=entity_info["id"],
                         orig_line_id=line_info["id"],
                     )
