@@ -1,8 +1,8 @@
 <h1>PEneo</h1>
 
-This is an official re-implementation of PEneo introduced in the paper *PEneo: Unifying Line Extraction, Line Grouping, and Entity Linking for End-to-end Document Pair Extraction*.
+This is an official re-implementation of PEneo introduced in the paper *PEneo: Unifying Line Extraction, Line Grouping, and Entity Linking for End-to-end Document Pair Extraction*. The RFUND annotations proposed in this paper can be found at [SCUT-DLVCLab/RFUND](https://github.com/SCUT-DLVCLab/RFUND).
 
-> Codes in this repository have undergone modifications from our original implementation to enhance its usability and comprehensibility. As a result, the model performance may vary slightly from the original implementation.
+> Codes in this repository have undergone modifications from our original implementation to enhance its flexibility and usability. As a result, the model performance may vary slightly from the original implementation.
 
 
 <h2>Table of Contents</h2>
@@ -76,14 +76,14 @@ private_data
 
 #### Supported Document-AI backbones
 
-| Model Name                     | 🤗 Link                                                                                        |
-| ------------------------------ | --------------------------------------------------------------------------------------------- |
-| LiLT[InfoXLM]$\rm_{BASE}$      | [SCUT-DLVCLab/lilt-infoxlm-base](https://huggingface.co/SCUT-DLVCLab/lilt-infoxlm-base)       |
-| LiLT[EN-R]$\rm_{BASE}$         | [SCUT-DLVCLab/lilt-roberta-en-base](https://huggingface.co/SCUT-DLVCLab/lilt-roberta-en-base) |
-| LayoutXLM$\rm_{BASE}$          | [microsoft/layoutxlm-base](https://huggingface.co/microsoft/layoutxlm-base)                   |
-| LayoutLMv2$\rm_{BASE}$         | [microsoft/layoutlmv2-base-uncased](https://huggingface.co/microsoft/layoutlmv2-base-uncased) |
-| LayoutLMv3$\rm_{BASE}$         | [microsoft/layoutlmv3-base](https://huggingface.co/microsoft/layoutlmv3-base)                 |
-| LayoutLMv3$\rm_{BASE-Chinese}$ | [microsoft/layoutlmv3-base-chinese](https://huggingface.co/microsoft/layoutlmv3-base-chinese) |
+| Model Name              | 🤗 Link                                                                                        |
+| ----------------------- | --------------------------------------------------------------------------------------------- |
+| lilt-infoxlm-base       | [SCUT-DLVCLab/lilt-infoxlm-base](https://huggingface.co/SCUT-DLVCLab/lilt-infoxlm-base)       |
+| lilt-roberta-en-base    | [SCUT-DLVCLab/lilt-roberta-en-base](https://huggingface.co/SCUT-DLVCLab/lilt-roberta-en-base) |
+| layoutxlm-base          | [microsoft/layoutxlm-base](https://huggingface.co/microsoft/layoutxlm-base)                   |
+| layoutlmv2-base         | [microsoft/layoutlmv2-base-uncased](https://huggingface.co/microsoft/layoutlmv2-base-uncased) |
+| layoutlmv3-base         | [microsoft/layoutlmv3-base](https://huggingface.co/microsoft/layoutlmv3-base)                 |
+| layoutlmv3-base-chinese | [microsoft/layoutlmv3-base-chinese](https://huggingface.co/microsoft/layoutlmv3-base-chinese) |
 
 
 #### Pre-trained Utils Generation
