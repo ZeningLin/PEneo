@@ -1,12 +1,15 @@
 <h1>PEneo</h1>
 
-This is an official re-implementation of PEneo introduced in the paper *PEneo: Unifying Line Extraction, Line Grouping, and Entity Linking for End-to-end Document Pair Extraction*. The RFUND annotations proposed in this paper can be found at [SCUT-DLVCLab/RFUND](https://github.com/SCUT-DLVCLab/RFUND).
+This is an official re-implementation of PEneo introduced in the MM'2024 paper *PEneo: Unifying Line Extraction, Line Grouping, and Entity Linking for End-to-end Document Pair Extraction*. The RFUND annotations proposed in this paper can be found at [SCUT-DLVCLab/RFUND](https://github.com/SCUT-DLVCLab/RFUND).
 
 > Codes in this repository have undergone modifications from our original implementation to enhance its flexibility and usability. As a result, the model performance may vary slightly from the original implementation.
 
 
 <h2>Table of Contents</h2>
 
+- [Introduction](#introduction)
+  - [Motivation](#motivation)
+  - [Methodology](#methodology)
 - [Setup](#setup)
   - [Installation](#installation)
   - [Dataset Preparation](#dataset-preparation)
@@ -20,6 +23,27 @@ This is an official re-implementation of PEneo introduced in the paper *PEneo: U
 - [Copyright](#copyright)
 
 
+
+## Introduction
+
+### Motivation
+
+Document pair extraction is a vital step in analyzing form-like documents containing information organized as key-value pairs. It involves identifying the key and value entities, as well as their linking relationships from document images. Previous research has generally divided it into two document understanding tasks: semantic entity recognition (SER) and relation extraction (RE). The SER task involves extracting contents that belong to predefined categories. Most of the existing methods implement SER using BIO tagging, where tokens in the input text sequence are tagged as the beginning (B), inside (I), or outside (O) element for each entity. On the other hand, the RE task aims to identify relations between given entities. Previous works have typically employed a linking classification network for relation extraction: given the entities in the document, it first generates representations for all possible entity pairs, then applies binary classification to filter out the valid ones. Document pair extraction is usually achieved by serially concatenating the above two tasks (SER+RE).
+
+Although achievements have been made in SER and RE, the existing SER+RE approach overlooks several issues. In previous settings, SER and RE are viewed as two distinct tasks that have inconsistent input/output forms and employ simplified evaluation metrics. For the SER task, entity-level OCR results are usually given, where text lines belonging to the same entity are aggregated and serialized in human reading order. The model categorizes each token based on the well-organized sequence, neglecting the impact of improper OCR outputs. In the RE task, models take the ground truths of the SER task as input, using prior knowledge of entity content and category. The model simply needs to predict the linkings based on the provided key and value entities, and the linking-level F1 score is taken as the evaluation metric. In real-world applications, however, the situation is considerably more complex. Commonly used OCR engines typically generate results at the line level. For entities with multiple lines, an extra line grouping step is required before BIO tagging, which is hard to realize for complex layout documents. Additionally, errors in SER predictions can significantly impact the RE step, resulting in unsatisfactory pair extraction results.
+
+
+### Methodology
+
+To address the above issues, we propose **PEneo** (**P**air **E**xtraction **n**ew d**e**coder **o**ption), integrating three downstream subtasks. The following figure depicts the architecture of PEneo:
+
+<div align="center">
+<img src="figures/modelarch.png" width=800>
+</div>
+
+The line extraction head identifies the position of the desired key/value lines from the unordered input token sequence. The line grouping head aggregates text lines that belong to the same key/value entity. The entity linking head predicts the relations between key and value entities. The three heads are jointly optimized during the training phase. At the inference step, key-value pairs can be parsed by unifying the outputs of the three heads. 
+
+
 ## Setup
 
 ### Installation
@@ -28,7 +52,7 @@ This is an official re-implementation of PEneo introduced in the paper *PEneo: U
 conda create -n vie python=3.10
 conda activate vie
 pip install torch==2.0.1 torchvision==0.15.2 torchaudio==2.0.2
-#pip install -r requirements.txt
+pip install -r requirements.txt
 ```
 
 If you want to use LayoutLMv2/LayoutXLM backbone, please additionally install detectron2:
@@ -76,6 +100,8 @@ private_data
 
 #### Supported Document-AI backbones
 
+<div align="center">
+
 | Model Name              | 🤗 Link                                                                                        |
 | ----------------------- | --------------------------------------------------------------------------------------------- |
 | lilt-infoxlm-base       | [SCUT-DLVCLab/lilt-infoxlm-base](https://huggingface.co/SCUT-DLVCLab/lilt-infoxlm-base)       |
@@ -85,6 +111,7 @@ private_data
 | layoutlmv3-base         | [microsoft/layoutlmv3-base](https://huggingface.co/microsoft/layoutlmv3-base)                 |
 | layoutlmv3-base-chinese | [microsoft/layoutlmv3-base-chinese](https://huggingface.co/microsoft/layoutlmv3-base-chinese) |
 
+</div>
 
 #### Pre-trained Utils Generation
 
