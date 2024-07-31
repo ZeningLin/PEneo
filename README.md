@@ -13,11 +13,14 @@ This is an official re-implementation of PEneo introduced in the MM'2024 paper *
 - [Setup](#setup)
   - [Installation](#installation)
   - [Dataset Preparation](#dataset-preparation)
+    - [RFUND](#rfund)
+    - [SIBR](#sibr)
   - [Backbone Preparation](#backbone-preparation)
     - [Supported Document-AI backbones](#supported-document-ai-backbones)
     - [Pre-trained Utils Generation](#pre-trained-utils-generation)
 - [Fine-tuning](#fine-tuning)
   - [Pair Extraction on RFUND](#pair-extraction-on-rfund)
+  - [Pair Extraction on SIBR](#pair-extraction-on-sibr)
 - [Citation](#citation)
 - [Acknowledgement](#acknowledgement)
 - [Copyright](#copyright)
@@ -64,9 +67,11 @@ pip install 'git+https://github.com/facebookresearch/detectron2.git'
 
 ### Dataset Preparation
 
+#### RFUND
+
 The RFUND annotations can be downloaded from [here](https://github.com/SCUT-DLVCLab/RFUND). Images of the dataset is available at the original release of [FUNSD](https://guillaumejaume.github.io/FUNSD/) and [XFUND](https://github.com/doc-analysis/XFUND/releases/tag/v1.0). The downloaded dataset should be organized as follows:
 
-```
+```bash
 private_data
 └── rfund
     ├── images
@@ -96,6 +101,23 @@ private_data
     └── zh.val.json
 ```
 
+#### SIBR
+
+We notice that some annotation errors exist in the original SIBR dataset (mainly due to the failure of data masking rules). To avoid potential issues, we made manual corrections and make the revised labels available [here](https://github.com/ZeningLin/PEneo/releases/tag/SIBR-revised-v1.0). Images of the dataset is available at the original release of [SIBR](https://www.modelscope.cn/datasets/iic/SIBR).
+
+After downloading the original SIBR dataset and our revised labels, you should extract place the revised `converted_label` folder under the root of the original SIBR directory. The dataset should be organized as follows:
+
+```bash
+private_data
+└── sibr
+    ├── converted_label # revised labels
+    ├── images          # original images
+    ├── label           # original labels
+    ├── train.txt       # train split file
+    └── test.txt        # test split file
+```
+
+
 ### Backbone Preparation
 
 #### Supported Document-AI backbones
@@ -107,7 +129,7 @@ private_data
 | lilt-infoxlm-base       | [SCUT-DLVCLab/lilt-infoxlm-base](https://huggingface.co/SCUT-DLVCLab/lilt-infoxlm-base)       |
 | lilt-roberta-en-base    | [SCUT-DLVCLab/lilt-roberta-en-base](https://huggingface.co/SCUT-DLVCLab/lilt-roberta-en-base) |
 | layoutxlm-base          | [microsoft/layoutxlm-base](https://huggingface.co/microsoft/layoutxlm-base)                   |
-| layoutlmv2-base         | [microsoft/layoutlmv2-base-uncased](https://huggingface.co/microsoft/layoutlmv2-base-uncased) |
+| layoutlmv2-base-uncased | [microsoft/layoutlmv2-base-uncased](https://huggingface.co/microsoft/layoutlmv2-base-uncased) |
 | layoutlmv3-base         | [microsoft/layoutlmv3-base](https://huggingface.co/microsoft/layoutlmv3-base)                 |
 | layoutlmv3-base-chinese | [microsoft/layoutlmv3-base-chinese](https://huggingface.co/microsoft/layoutlmv3-base-chinese) |
 
@@ -118,10 +140,14 @@ private_data
 If you want to use layoutlmv3-base as the model backbone, you can generate the required files by running the following command:
 
 ```bash
-python tools/generate_peneo_weights.py --backbone_name_or_path microsoft/layoutlmv3-base --output_dir private_pretrained/layoutlmv3-base
+mkdir private_pretrained
+
+python tools/generate_peneo_weights.py \
+  --backbone_name_or_path microsoft/layoutlmv3-base \
+  --output_dir private_pretrained/layoutlmv3-base
 ```
 
-The scripts will automatically download the pre-trained weights, tokenizer, and config files from 🤗Huggingface hub and convert them to the required format. If you want to use other backbones, you can change the `--backbone_name_or_path` parameter to the corresponding HF model id.
+The scripts will automatically download the pre-trained weights, tokenizer, and config files from 🤗Huggingface hub and convert them to the required format. Results will be stored in the `private_pretrained` directory. If you want to use other backbones, you can change the `--backbone_name_or_path` parameter to the corresponding HF model id.
 
 If the scripts failed to download the pre-trained files, you may manually download them through the links in the above table, and set the `--backbone_name_or_path` parameter to the local directory of the downloaded files.
 
@@ -179,6 +205,53 @@ torchrun --nproc_per_node $PROC_PER_NODE --master_port $MASTER_PORT start/run_rf
 ```
 
 The above script use `layoutlmv3-base` as the model backbone and fine-tune the model on `RFUND-EN`. You may try different backbones and language subsets by changing the `PRETRAINED_PATH` and `LANGUAGE` accordingly.
+
+
+### Pair Extraction on SIBR
+
+Similarly, you can fine-tune the model on the SIBR dataset by running the following script:
+
+```bash
+export PYTHONPATH=./
+export CUDA_VISIBLE_DEVICES=0,1
+export TRANSFORMERS_NO_ADVISORY_WARNINGS='true'
+PROC_PER_NODE=$(python -c "import torch; print(torch.cuda.device_count())")
+MASTER_PORT=11451
+
+TASK_NAME=layoutlmv3-base-chinese_sibr
+PRETRAINED_PATH=private_pretrained/layoutlmv3-base-chinese
+DATA_DIR=private_data/sibr
+OUTPUT_DIR=private_output/weights/$TASK_NAME
+RUNS_DIR=private_output/runs/$TASK_NAME
+LOG_DIR=private_output/logs/$TASK_NAME.log
+torchrun --nproc_per_node $PROC_PER_NODE --master_port 11451 start/run_sibr.py \
+    --model_name_or_path $PRETRAINED_PATH \
+    --data_dir $DATA_DIR \
+    --output_dir $OUTPUT_DIR \
+    --do_train \
+    --do_eval \
+    --fp16 \
+    --per_device_train_batch_size 4 \
+    --per_device_eval_batch_size 16 \
+    --dataloader_num_workers 8 \
+    --warmup_ratio 0.1 \
+    --learning_rate 5e-5 \
+    --max_steps 25000 \
+    --load_best_model_at_end True \
+    --metric_for_best_model f1 \
+    --evaluation_strategy steps \
+    --eval_steps 1000 \
+    --save_strategy steps \
+    --save_steps 1000 \
+    --save_total_limit 3 \
+    --logging_strategy epoch \
+    --logging_dir $RUNS_DIR \
+    --detail_eval True \
+    --save_eval_detail True \
+    2>&1 | tee -a $LOG_DIR
+```
+
+It is worth noting that the SIBR dataset is a Chinese-English bilingual dataset. You should use bilingual backbones like `layoutlmv3-base-chinese`, `lilt-infoxlm-base` and `layoutxlm-base` for fine-tuning.
 
 
 ## Citation
