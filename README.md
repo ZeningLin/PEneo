@@ -1,6 +1,12 @@
 <h1>PEneo</h1>
 
-This is an official re-implementation of PEneo introduced in the MM'2024 paper *PEneo: Unifying Line Extraction, Line Grouping, and Entity Linking for End-to-end Document Pair Extraction*. The RFUND annotations proposed in this paper can be found at [SCUT-DLVCLab/RFUND](https://github.com/SCUT-DLVCLab/RFUND).
+<a href="https://arxiv.org/abs/2401.03472">
+    <img alt="arxiv-link" src="https://img.shields.io/badge/cs.CL-arXiv%3A2401.03472-B31B1B.svg"></img>
+</a>
+
+This is an official re-implementation of PEneo introduced in the MM'2024 paper *PEneo: Unifying Line Extraction, Line Grouping, and Entity Linking for End-to-end Document Pair Extraction*.
+
+The RFUND annotations proposed in this paper can be found at [SCUT-DLVCLab/RFUND](https://github.com/SCUT-DLVCLab/RFUND).
 
 > Codes in this repository have undergone modifications from our original implementation to enhance its flexibility and usability. As a result, the model performance may vary slightly from the original implementation.
 
@@ -31,7 +37,7 @@ This is an official re-implementation of PEneo introduced in the MM'2024 paper *
 
 ### Motivation
 
-Document pair extraction is a vital step in analyzing form-like documents containing information organized as key-value pairs. It involves identifying the key and value entities, as well as their linking relationships from document images. Previous research has generally divided it into two document understanding tasks: semantic entity recognition (SER) and relation extraction (RE). The SER task involves extracting contents that belong to predefined categories. Most of the existing methods implement SER using BIO tagging, where tokens in the input text sequence are tagged as the beginning (B), inside (I), or outside (O) element for each entity. On the other hand, the RE task aims to identify relations between given entities. Previous works have typically employed a linking classification network for relation extraction: given the entities in the document, it first generates representations for all possible entity pairs, then applies binary classification to filter out the valid ones. Document pair extraction is usually achieved by serially concatenating the above two tasks (SER+RE).
+Document pair extraction is a vital step in analyzing form-like documents containing information organized as key-value pairs. It involves identifying the key and value entities, as well as their linking relationships from document images. Previous research has generally divided it into two document understanding tasks: semantic entity recognition (SER) and relation extraction (RE). The SER task involves extracting contents that belong to predefined categories. Most of the existing methods implement SER using BIO tagging, where tokens in the input text sequence are tagged as the beginning (B), inside (I), or outside (O) element for each entity. On the other hand, the RE task aims to identify relations between given entities. Previous works have typically employed a linking classification network for relation extraction: given the entities in the document, it first generates representations for all possible entity pairs and then applies binary classification to filter out the valid ones. Document pair extraction is usually achieved by serially concatenating the above two tasks (SER+RE).
 
 Although achievements have been made in SER and RE, the existing SER+RE approach overlooks several issues. In previous settings, SER and RE are viewed as two distinct tasks that have inconsistent input/output forms and employ simplified evaluation metrics. For the SER task, entity-level OCR results are usually given, where text lines belonging to the same entity are aggregated and serialized in human reading order. The model categorizes each token based on the well-organized sequence, neglecting the impact of improper OCR outputs. In the RE task, models take the ground truths of the SER task as input, using prior knowledge of entity content and category. The model simply needs to predict the linkings based on the provided key and value entities, and the linking-level F1 score is taken as the evaluation metric. In real-world applications, however, the situation is considerably more complex. Commonly used OCR engines typically generate results at the line level. For entities with multiple lines, an extra line grouping step is required before BIO tagging, which is hard to realize for complex layout documents. Additionally, errors in SER predictions can significantly impact the RE step, resulting in unsatisfactory pair extraction results.
 
@@ -103,9 +109,9 @@ private_data
 
 #### SIBR
 
-We notice that some annotation errors exist in the original SIBR dataset (mainly due to the failure of data masking rules). To avoid potential issues, we made manual corrections and make the revised labels available [here](https://github.com/ZeningLin/PEneo/releases/tag/SIBR-revised-v1.0). Images of the dataset is available at the original release of [SIBR](https://www.modelscope.cn/datasets/iic/SIBR).
+We notice that some annotation errors exist in the original SIBR dataset (mainly due to the failure of data masking rules). To avoid potential issues, we made manual corrections and made the revised labels available [here](https://github.com/ZeningLin/PEneo/releases/tag/SIBR-revised-v1.0). Images of the dataset are available at the original release of [SIBR](https://www.modelscope.cn/datasets/iic/SIBR).
 
-After downloading the original SIBR dataset and our revised labels, you should extract place the revised `converted_label` folder under the root of the original SIBR directory. The dataset should be organized as follows:
+After downloading the original SIBR dataset and our revised labels, you should extract and place the revised `converted_label` folder under the root of the original SIBR directory. The dataset should be organized as follows:
 
 ```bash
 private_data
@@ -147,9 +153,9 @@ python tools/generate_peneo_weights.py \
   --output_dir private_pretrained/layoutlmv3-base
 ```
 
-The scripts will automatically download the pre-trained weights, tokenizer, and config files from 🤗Huggingface hub and convert them to the required format. Results will be stored in the `private_pretrained` directory. If you want to use other backbones, you can change the `--backbone_name_or_path` parameter to the corresponding HF model id.
+The scripts will automatically download the pre-trained weights, tokenizer, and config files from 🤗Huggingface hub and convert them to the required format. Results will be stored in the `private_pretrained` directory. If you want to use other backbones, you can change the `--backbone_name_or_path` parameter to the corresponding HF model ID.
 
-If the scripts failed to download the pre-trained files, you may manually download them through the links in the above table, and set the `--backbone_name_or_path` parameter to the local directory of the downloaded files.
+If the scripts fail to download the pre-trained files, you may manually download them through the links in the above table, and set the `--backbone_name_or_path` parameter to the local directory of the downloaded files.
 
 
 ## Fine-tuning
@@ -204,7 +210,7 @@ torchrun --nproc_per_node $PROC_PER_NODE --master_port $MASTER_PORT start/run_rf
     2>&1 | tee -a $LOG_DIR
 ```
 
-The above script use `layoutlmv3-base` as the model backbone and fine-tune the model on `RFUND-EN`. You may try different backbones and language subsets by changing the `PRETRAINED_PATH` and `LANGUAGE` accordingly.
+The above script uses `layoutlmv3-base` as the model backbone and fine-tunes the model on `RFUND-EN`. You may try different backbones and language subsets by changing the `PRETRAINED_PATH` and `LANGUAGE` accordingly.
 
 
 ### Pair Extraction on SIBR
