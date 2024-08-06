@@ -230,7 +230,7 @@ DATA_DIR=private_data/sibr
 OUTPUT_DIR=private_output/weights/$TASK_NAME
 RUNS_DIR=private_output/runs/$TASK_NAME
 LOG_DIR=private_output/logs/$TASK_NAME.log
-torchrun --nproc_per_node $PROC_PER_NODE --master_port 11451 start/run_sibr.py \
+torchrun --nproc_per_node $PROC_PER_NODE --master_port $MASTER_PORT start/run_sibr.py \
     --model_name_or_path $PRETRAINED_PATH \
     --data_dir $DATA_DIR \
     --output_dir $OUTPUT_DIR \
