@@ -1,10 +1,10 @@
 <h1>PEneo</h1>
 
 <a href="https://arxiv.org/abs/2401.03472">
-    <img alt="arxiv-link" src="https://img.shields.io/badge/cs.CL-arXiv%3A2401.03472-B31B1B.svg"></img>
+    <img alt="arxiv-link" src="https://img.shields.io/badge/arXiv-2401.03472-B31B1B.svg?logo=arXiv"></img>
 </a>
 
-This is an official re-implementation of PEneo introduced in the MM'2024 paper *PEneo: Unifying Line Extraction, Line Grouping, and Entity Linking for End-to-end Document Pair Extraction*.
+This is an official implementation of PEneo introduced in the MM'2024 paper *PEneo: Unifying Line Extraction, Line Grouping, and Entity Linking for End-to-end Document Pair Extraction*.
 
 The RFUND annotations proposed in this paper can be found at [SCUT-DLVCLab/RFUND](https://github.com/SCUT-DLVCLab/RFUND).
 
@@ -130,24 +130,29 @@ private_data
 
 <div align="center">
 
-| Model Name              | 🤗 Link                                                                                        |
+| Model Name              |  Link                                                                                        |
 | ----------------------- | --------------------------------------------------------------------------------------------- |
-| lilt-infoxlm-base       | [SCUT-DLVCLab/lilt-infoxlm-base](https://huggingface.co/SCUT-DLVCLab/lilt-infoxlm-base)       |
-| lilt-roberta-en-base    | [SCUT-DLVCLab/lilt-roberta-en-base](https://huggingface.co/SCUT-DLVCLab/lilt-roberta-en-base) |
-| layoutxlm-base          | [microsoft/layoutxlm-base](https://huggingface.co/microsoft/layoutxlm-base)                   |
-| layoutlmv2-base-uncased | [microsoft/layoutlmv2-base-uncased](https://huggingface.co/microsoft/layoutlmv2-base-uncased) |
-| layoutlmv3-base         | [microsoft/layoutlmv3-base](https://huggingface.co/microsoft/layoutlmv3-base)                 |
-| layoutlmv3-base-chinese | [microsoft/layoutlmv3-base-chinese](https://huggingface.co/microsoft/layoutlmv3-base-chinese) |
+| lilt-infoxlm-base       | 🤗 [SCUT-DLVCLab/lilt-infoxlm-base](https://huggingface.co/SCUT-DLVCLab/lilt-infoxlm-base)       |
+| lilt-roberta-en-base    | 🤗 [SCUT-DLVCLab/lilt-roberta-en-base](https://huggingface.co/SCUT-DLVCLab/lilt-roberta-en-base) |
+| layoutxlm-base          | 🤗 [microsoft/layoutxlm-base](https://huggingface.co/microsoft/layoutxlm-base)                   |
+| layoutlmv2-base-uncased | 🤗 [microsoft/layoutlmv2-base-uncased](https://huggingface.co/microsoft/layoutlmv2-base-uncased) |
+| layoutlmv3-base         | 🤗 [microsoft/layoutlmv3-base](https://huggingface.co/microsoft/layoutlmv3-base)                 |
+| layoutlmv3-base-chinese | 🤗 [microsoft/layoutlmv3-base-chinese](https://huggingface.co/microsoft/layoutlmv3-base-chinese) |
 
 </div>
 
 #### Pre-trained Utils Generation
 
-If you want to use layoutlmv3-base as the model backbone, you can generate the required files by running the following command:
+The pre-trained contents will be stored in the `private_pretrained` directory. Please create this folder before running the utils-generation scripts.
 
 ```bash
 mkdir private_pretrained
+```
 
+If you want to use layoutlmv3-base as the model backbone, you can generate the required files by running the following command:
+
+
+```bash
 python tools/generate_peneo_weights.py \
   --backbone_name_or_path microsoft/layoutlmv3-base \
   --output_dir private_pretrained/layoutlmv3-base
@@ -160,7 +165,7 @@ If the scripts fail to download the pre-trained files, you may manually download
 
 ## Fine-tuning
 
-Checkpoints, terminal outputs, and tensorboard logs will be saved in `private_output/weights`, `private_output/logs`, and `private_output/runs`, respectively. Please create these directories before running the scripts.
+Checkpoints, terminal outputs, and tensorboard logs will be saved in `private_output/weights`, `private_output/logs`, and `private_output/runs`, respectively. Please create these directories before running the fine-tuning scripts.
 
 ```bash
 mkdir -p private_output/weights
@@ -210,7 +215,7 @@ torchrun --nproc_per_node $PROC_PER_NODE --master_port $MASTER_PORT start/run_rf
     2>&1 | tee -a $LOG_DIR
 ```
 
-The above script uses `layoutlmv3-base` as the model backbone and fine-tunes the model on `RFUND-EN`. You may try different backbones and language subsets by changing the `PRETRAINED_PATH` and `LANGUAGE` accordingly.
+The above script uses `layoutlmv3-base` as the model backbone and fine-tunes the model on `RFUND-EN`. You may try different backbones and language subsets by changing the `PRETRAINED_PATH` and `LANGUAGE` accordingly. Different backbones require different hyper-parameters, so you may need to adjust the training arguments accordingly.
 
 
 ### Pair Extraction on SIBR
@@ -257,7 +262,7 @@ torchrun --nproc_per_node $PROC_PER_NODE --master_port $MASTER_PORT start/run_si
     2>&1 | tee -a $LOG_DIR
 ```
 
-It is worth noting that the SIBR dataset is a Chinese-English bilingual dataset. You should use bilingual backbones like `layoutlmv3-base-chinese`, `lilt-infoxlm-base` and `layoutxlm-base` for fine-tuning.
+It is worth noting that the SIBR dataset is a Chinese-English bilingual dataset. You should use multi-lingual backbones like `layoutlmv3-base-chinese`, `lilt-infoxlm-base` and `layoutxlm-base` for fine-tuning.
 
 
 ## Citation
@@ -265,10 +270,10 @@ It is worth noting that the SIBR dataset is a Chinese-English bilingual dataset.
 If you find PEneo helpful, please consider citing our paper:
 
 ```
-@article{lin2024peneo,
+@inproceedings{lin2024peneo,
   title={PEneo: Unifying Line Extraction, Line Grouping, and Entity Linking for End-to-end Document Pair Extraction},
   author={Lin, Zening and Wang, Jiapeng and Li, Teng and Liao, Wenhui and Huang, Dayi and Xiong, Longfei and Jin, Lianwen},
-  journal={arXiv preprint arXiv:2401.03472},
+  booktitle={Proceedings of the 32th ACM International Conference on Multimedia},
   year={2024}
 }
 ```
@@ -280,6 +285,10 @@ Part of the code is adapted from [LiLT](), [LayoutLMv2/XLM](https://github.com/m
 
 ## Copyright
 
-This repository can only be used for non-commercial research purposes. For other purposes, please contact Prof. Lianwen Jin (eelwjin@scut.edu.cn).
+This repository can only be used for non-commercial research purposes. 
 
-Copyright 2024, [Deep Learning and Vision Computing Lab](http://www.dlvc-lab.net/), South China University of Technology.
+For commercial-use, please contact Prof. Lianwen Jin (eelwjin@scut.edu.cn).
+
+If you come across any problems, please feel free to open an issue or contact Zening Lin (zening.lin@outlook.com).
+
+Copyright 2024, Deep Learning and Vision Computing Lab ([HomePage](http://www.dlvc-lab.net/), [GitHub](https://github.com/SCUT-DLVCLab)), South China University of Technology.
