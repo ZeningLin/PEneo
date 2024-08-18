@@ -227,6 +227,8 @@ def fetcher_LayoutLMv3Tokenizer(orig_text: str, tokens: List[str]) -> List[str]:
             real_token += orig_text[orig_index]
             orig_index += 1
         else:
+            if token.startswith("ĠÂ"):
+                token = token.replace("ĠÂ", " ") if i > 0 else token.replace("ĠÂ", "")
             if token.startswith("Ġ"):
                 token = token.replace("Ġ", " ") if i > 0 else token.replace("Ġ", "")
             for c in token:
