@@ -206,6 +206,8 @@ class PEneoDecoder(nn.Module):
         # handshaking kernel
         self.handshaking_kernel = HandshakingKernel(decoder_hidden_size)
 
+        self.inference_mode = config.inference_mode
+
         def build_classifier(
             input_size: int,
             output_size: int,
@@ -339,6 +341,16 @@ class PEneoDecoder(nn.Module):
         )
         ent_linking_h2h_shaking_outputs = self.ent_linking_h2h_fc(shaking_hiddens4rel)
         ent_linking_t2t_shaking_outputs = self.ent_linking_t2t_fc(shaking_hiddens4rel)
+
+        if self.inference_mode:
+            return (
+                line_extraction_shaking_outputs,
+                ent_linking_h2h_shaking_outputs,
+                ent_linking_t2t_shaking_outputs,
+                line_grouping_h2h_shaking_outputs,
+                line_grouping_t2t_shaking_outputs,
+                orig_bbox,
+            )
 
         line_extraction_shaking_loss = self.calculate_peneo_loss(
             line_extraction_shaking_outputs, line_extraction_shaking_tag, type="le"
