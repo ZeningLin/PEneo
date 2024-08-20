@@ -273,7 +273,7 @@ If you find PEneo helpful, please consider citing our paper:
 @inproceedings{lin2024peneo,
   title={PEneo: Unifying Line Extraction, Line Grouping, and Entity Linking for End-to-end Document Pair Extraction},
   author={Lin, Zening and Wang, Jiapeng and Li, Teng and Liao, Wenhui and Huang, Dayi and Xiong, Longfei and Jin, Lianwen},
-  booktitle={Proceedings of the 32th ACM International Conference on Multimedia},
+  booktitle={Proceedings of the 32nd ACM International Conference on Multimedia},
   year={2024}
 }
 ```
@@ -287,8 +287,8 @@ Part of the code is adapted from [LiLT](), [LayoutLMv2/XLM](https://github.com/m
 
 This repository can only be used for non-commercial research purposes. 
 
-For commercial-use, please contact Prof. Lianwen Jin (eelwjin@scut.edu.cn).
+For commercial use, please contact Prof. Lianwen Jin (eelwjin@scut.edu.cn).
 
-If you come across any problems, please feel free to open an issue or contact Zening Lin (zening.lin@outlook.com).
+If you encounter any problems, please open an issue or contact Zening Lin (zening.lin@outlook.com).
 
 Copyright 2024, Deep Learning and Vision Computing Lab ([HomePage](http://www.dlvc-lab.net/), [GitHub](https://github.com/SCUT-DLVCLab)), South China University of Technology.
