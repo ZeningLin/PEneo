@@ -1,7 +1,31 @@
 import random
-from typing import List, Tuple, Union
+from typing import Dict, List, Tuple, Union
 
 import numpy as np
+
+
+def box_two_point_convert(box: Union[List[float], Dict[str, float]]):
+    if isinstance(box, List) and len(box) == 4:
+        return box
+
+    assert len(box) == 8, f"Box should be List or Dict that contains 4 or 8 values."
+
+    x_set, y_set = set(), set()
+    if isinstance(box, List):
+        for i, bv in enumerate(box):
+            if i % 2:
+                y_set.add(bv)
+            else:
+                x_set.add(bv)
+    else:
+        for bn, bv in box.items():
+            if "x" in bn:
+                x_set.add(bv)
+            else:
+                y_set.add(bv)
+
+    left, top, right, bottom = (min(x_set), min(y_set), max(x_set), max(y_set))
+    return [left, top, right, bottom]
 
 
 def normalize_bbox(box: List[int], size: Tuple) -> List[int]:
@@ -106,10 +130,10 @@ def box_augmentation(bbox: Union[List, Tuple], image_w: int, image_h: int) -> Tu
         Image width
     image_h : int
         Image height
-    
+
     Returns
     -------
-    
+
     """
     left, top, right, bot = bbox
 

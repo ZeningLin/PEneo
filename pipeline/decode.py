@@ -2,11 +2,15 @@ from typing import Dict, List, Tuple
 
 import torch
 
+from data.data_utils import merge_bbox
 from model.peneo_decoder import HandshakingTaggingScheme
 
 
 def parse_matrix_spots(
-    matrix_spots: List[Tuple], top_score_only: bool = False, triu_mode: bool = False
+    matrix_spots: List[Tuple],
+    top_score_only: bool = False,
+    triu_mode: bool = False,
+    score_thresh: float = 0,
 ) -> Dict[int, int]:
     """Parse matrix spots to a dict.
 
@@ -20,6 +24,9 @@ def parse_matrix_spots(
     triu_mode : bool, optional
         If True, elements tagged as 2 are considered as the lower triangle of the matrix,
         by default False
+    score_thresh : float, optional
+        The score threshold. Only predictions with score larger than this value
+        will be kept, by default 0
 
     Returns
     -------
@@ -30,7 +37,7 @@ def parse_matrix_spots(
     spot_map = {}
     for sp in matrix_spots:
         head_idx, tail_idx, tag, score = sp
-        if tag == 0:
+        if tag == 0 or score < score_thresh:
             continue
         if triu_mode and tag == 2:
             head_idx, tail_idx = tail_idx, head_idx
@@ -70,9 +77,11 @@ def sample_decode_peneo(
     ent_linking_t2t_shaking: torch.Tensor,
     line_grouping_h2h_shaking: torch.Tensor,
     line_grouping_t2t_shaking: torch.Tensor,
+    bbox: torch.Tensor = None,
     seq_len: int = None,
     shaking_ind2matrix_ind: List[Tuple[int]] = None,
     decode_gt: bool = False,
+    score_thresh: float = 0,
 ) -> Tuple:
     """Decode PEneo predictions/ground-truth tags of one sample,
     return the parsed kv-pairs, lines, and linkings
@@ -162,6 +171,7 @@ def sample_decode_peneo(
         matrix_spots=line_extraction_matrix_spots,
         top_score_only=False if decode_gt else True,
         triu_mode=False,
+        score_thresh=score_thresh,
     )
 
     # parse line-grouping results
@@ -169,11 +179,13 @@ def sample_decode_peneo(
         matrix_spots=line_grouping_t2t_matrix_spots,
         top_score_only=False if decode_gt else True,
         triu_mode=True,
+        score_thresh=score_thresh,
     )
     line_grouping_head_rel_memory_dict = parse_matrix_spots(
         matrix_spots=line_grouping_h2h_matrix_spots,
         top_score_only=False if decode_gt else True,
         triu_mode=True,
+        score_thresh=score_thresh,
     )
 
     if decode_gt:
@@ -187,20 +199,31 @@ def sample_decode_peneo(
             k: v[0] for k, v in line_grouping_head_rel_memory_dict.items()
         }
 
+    if bbox is not None:
+        bbox = bbox.tolist()
+
     parsed_lines = []
     for start_id, end_id in line_extraction_memory_dict.items():
-        parsed_lines.append("".join(text[start_id : end_id + 1]))
+        line_text = "".join(text[start_id : end_id + 1])
+        if bbox is not None:
+            line_box = merge_bbox(bbox[start_id : end_id + 1])
+            parsed_lines.append((line_text, line_box))
+        else:
+            parsed_lines.append(line_text)
 
     # parse entity-linking results,
     # then extract kv-pair
     parsed_kv_pairs = []
     entity_tail_rel_memory_dict = parse_matrix_spots(
-        matrix_spots=ent_linking_t2t_matrix_spots, top_score_only=False, triu_mode=True
+        matrix_spots=ent_linking_t2t_matrix_spots,
+        top_score_only=False,
+        triu_mode=True,
+        score_thresh=score_thresh,
     )
     entity_head_rel_memory_dict = {}
     for sp in ent_linking_h2h_matrix_spots:
-        key_head_idx, value_head_idx, tag, _ = sp
-        if tag == 0:
+        key_head_idx, value_head_idx, tag, score = sp
+        if tag == 0 or score < score_thresh:
             continue
         if tag == 2:
             key_head_idx, value_head_idx = value_head_idx, key_head_idx
@@ -227,7 +250,16 @@ def sample_decode_peneo(
         key_next_line_head_idx = line_grouping_head_rel_memory_dict.get(
             key_curr_line_head_idx, None
         )
+        if bbox is not None:
+            key_box_list = [
+                merge_bbox(bbox[key_head_idx : key_first_line_tail_idx + 1])
+            ]
+        num_op = 0
         while key_next_line_head_idx is not None:
+            num_op += 1
+            if num_op > 1000:
+                break
+
             if key_next_line_head_idx == key_curr_line_head_idx:
                 break
 
@@ -250,6 +282,12 @@ def sample_decode_peneo(
             key_span_list.append(
                 (key_next_line_head_idx, le_key_next_line_tail_idx + 1)
             )
+            if bbox is not None:
+                key_box_list.append(
+                    merge_bbox(
+                        bbox[key_next_line_head_idx : le_key_next_line_tail_idx + 1]
+                    )
+                )
 
             key_curr_line_head_idx = key_next_line_head_idx
             key_curr_line_tail_idx = le_key_next_line_tail_idx
@@ -267,7 +305,16 @@ def sample_decode_peneo(
         value_next_line_head_idx = line_grouping_head_rel_memory_dict.get(
             value_curr_line_head_idx, None
         )
+        if bbox is not None:
+            value_box_list = [
+                merge_bbox(bbox[value_head_idx : value_first_line_tail_idx + 1])
+            ]
+        num_op = 0
         while value_next_line_head_idx is not None:
+            num_op += 1
+            if num_op > 1000:
+                break
+
             if value_next_line_head_idx == value_curr_line_head_idx:
                 break
 
@@ -289,6 +336,12 @@ def sample_decode_peneo(
             value_span_list.append(
                 (value_next_line_head_idx, le_value_next_line_tail_idx + 1)
             )
+            if bbox is not None:
+                value_box_list.append(
+                    merge_bbox(
+                        bbox[value_next_line_head_idx : le_value_next_line_tail_idx + 1]
+                    )
+                )
 
             value_curr_line_head_idx = value_next_line_head_idx
             value_curr_line_tail_idx = le_value_next_line_tail_idx
@@ -307,7 +360,12 @@ def sample_decode_peneo(
             key_text = "".join(key_text_list).strip()
             value_text = "".join(value_text_list).strip()
 
-            parsed_kv_pairs.append((key_text, value_text))
+            if bbox is not None:
+                key_box = merge_bbox(key_box_list)
+                value_box = merge_bbox(value_box_list)
+                parsed_kv_pairs.append((key_text, value_text, key_box, value_box))
+            else:
+                parsed_kv_pairs.append((key_text, value_text))
 
     return (
         parsed_kv_pairs,

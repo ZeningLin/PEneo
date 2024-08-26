@@ -225,6 +225,7 @@ class InferenceService:
                 if curr_token_idx + line_token_len > self.max_token_len:
                     # reach max token length, break
                     break
+                curr_token_idx += line_token_len
 
                 if self.tokenizer_fetcher is not None:
                     line_sos_processed_tokens = self.tokenizer_fetcher(
