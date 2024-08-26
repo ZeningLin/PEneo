@@ -105,7 +105,21 @@ class PEneoModel(PEneoPreTrainedModel):
     def _init_weights(self, module) -> None:
         self.backbone._init_weights(module)
 
-    def forward(self, **kwargs) -> ModelOutput:
+    def forward(
+        self, input_ids, bbox, orig_bbox, attention_mask, image=None, **kwargs
+    ) -> ModelOutput:
+        ## ! For onnx
+        kwargs.update(
+            {
+                "input_ids": input_ids,
+                "bbox": bbox,
+                "orig_bbox": orig_bbox,
+                "attention_mask": attention_mask,
+                "image": image,
+            }
+        )
+        ## ! onnx
+
         backbone_kwarg_names = inspect.signature(
             self.backbone.forward
         ).parameters.values()
@@ -113,6 +127,7 @@ class PEneoModel(PEneoPreTrainedModel):
         backbone_kwargs = {
             bk_name: kwargs.get(bk_name, None) for bk_name in backbone_kwarg_names
         }
+
         backbone_output = self.backbone(**backbone_kwargs)
 
         # remove visual embeds, cls tokens according to backbone config

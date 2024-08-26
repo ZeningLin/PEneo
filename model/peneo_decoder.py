@@ -126,6 +126,26 @@ class HandshakingKernel(nn.Module):
         self.combine_fc = nn.Linear(hidden_size * 2, hidden_size)
         self.activation = nn.SiLU()
 
+    def get_triu_indices(self, seq_len: int):
+        """Replace torch.triu_indices for onnx compatibility
+
+        Parameters
+        ----------
+        seq_len : int
+            Edge size of the handshaking matrix
+
+        Returns
+        -------
+        triu_indices : torch.Tensor
+            In shape (2, (1 + seq_len) * seq_len / 2),
+            index of the triu elements
+        """
+        row_indices = torch.arange(seq_len).unsqueeze(1)
+        col_indices = torch.arange(seq_len).unsqueeze(0)
+        mask = row_indices <= col_indices
+
+        return torch.nonzero(mask).transpose(1, 0)
+
     def forward(self, seq_hiddens: torch.Tensor) -> torch.Tensor:
         """Apply pairwise token concatenation and return the flattened
         upper triangular part of the shaking matrix.
@@ -148,7 +168,7 @@ class HandshakingKernel(nn.Module):
             ],
             dim=-1,
         ).permute(0, 3, 1, 2)
-        triu_index = torch.triu_indices(seq_len, seq_len, device=seq_hiddens.device)
+        triu_index = self.get_triu_indices(seq_len=seq_len)
         triu_index = seq_len * triu_index[0] + triu_index[1]
         shaking_matrix = shaking_matrix.flatten(-2)[..., triu_index]
         shaking_matrix = shaking_matrix.permute(0, 2, 1)

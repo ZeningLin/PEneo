@@ -74,7 +74,7 @@ def main():
     )
 
     # backbone args
-    input_ids = torch.randint(1, 200000, (1, 512))
+    input_ids = torch.randint(1, 10000, (1, 512))
     bbox = torch.zeros((1, 512, 4)).long()
     attention_mask = torch.ones((1, 512)).long()
 
