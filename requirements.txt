@@ -1,4 +1,4 @@
-tqdm==4.66.1
+tqdm==4.66.3
 transformers==4.40.1
 accelerate==0.27.2
 tensorboard==2.15.1
