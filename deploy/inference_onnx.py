@@ -131,11 +131,6 @@ class InferenceService:
             )
             raise ValueError()
 
-        if "layoutlmv3" in self.config.backbone_name:
-            self.backbone_info.max_token_len = 510
-        else:
-            self.backbone_info.max_token_len = 511
-
         self.apply_ocr = data_args.apply_ocr
         if self.apply_ocr:
             logger.info(
@@ -329,7 +324,7 @@ class InferenceService:
             batch = self.tokenizer.pad(
                 features,
                 padding="longest",
-                max_length=1024,
+                max_length=512,
                 pad_to_multiple_of=8,
                 return_tensors=None,
             )
