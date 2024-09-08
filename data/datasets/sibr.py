@@ -179,6 +179,8 @@ class SIBRDataset(Dataset):
                     entity_first_line_map[entity_info["id"]] = line_info["id"]
                 first_line_flag = False
 
+                line_id_to_entity_id_map[line_info["id"]] = entity_info["id"]
+
             if len(all_orig_line_list) == 0:
                 empty_entity.add(entity_info["id"])
                 continue
@@ -235,10 +237,10 @@ class SIBRDataset(Dataset):
             in_scope_entity_id.add(ln.orig_entity_id)
             # part of the entity lines may fall out of scope
             # but the corresponding entity is still recorded as in scope
-            in_scope_line_id.add(sorted_line_idx)
+            in_scope_line_id.add(ln.orig_line_id)
 
             curr_line_norm_bbox = normalize_bbox(
-                curr_line_orig_bbox, [image_w, image_h]
+                curr_line_orig_bbox, (image_w, image_h)
             )
 
             orig_bbox.extend([curr_line_orig_bbox] * line_token_len)
@@ -276,6 +278,14 @@ class SIBRDataset(Dataset):
             question_last_line_orig_id = entity_last_line_map[question_entity_id]
             answer_last_line_orig_id = entity_last_line_map[answer_entity_id]
 
+            if (
+                (question_first_line_orig_id not in in_scope_line_id)
+                or (question_last_line_orig_id not in in_scope_line_id)
+                or (answer_first_line_orig_id not in in_scope_line_id)
+                or (answer_last_line_orig_id not in in_scope_line_id)
+            ):
+                continue
+
             question_first_line_sorted_id = line_orig_to_sorted_map[
                 question_first_line_orig_id
             ]
@@ -289,14 +299,6 @@ class SIBRDataset(Dataset):
                 answer_last_line_orig_id
             ]
 
-            if (
-                (question_first_line_sorted_id not in in_scope_line_id)
-                or (question_last_line_sorted_id not in in_scope_line_id)
-                or (answer_first_line_sorted_id not in in_scope_line_id)
-                or (answer_last_line_sorted_id not in in_scope_line_id)
-            ):
-                continue
-
             question_first_line_start_token = all_sorted_line_list[
                 question_first_line_sorted_id
             ].sorted_start_token
@@ -309,14 +311,6 @@ class SIBRDataset(Dataset):
             answer_last_line_end_token = all_sorted_line_list[
                 answer_last_line_sorted_id
             ].sorted_end_token
-
-            if (
-                from_line_start_token is None
-                or from_line_end_token is None
-                or to_line_start_token is None
-                or to_line_end_token is None
-            ):
-                continue
 
             if question_first_line_start_token < answer_first_line_start_token:
                 ent_linking_head_rel_matrix_spots.append(
@@ -368,13 +362,13 @@ class SIBRDataset(Dataset):
             ):
                 continue
 
-            from_line_sorted_id = line_orig_to_sorted_map[from_line_orig_id]
-            to_line_sorted_id = line_orig_to_sorted_map[to_line_orig_id]
-
-            if (from_line_sorted_id not in in_scope_line_id) or (
-                to_line_sorted_id not in in_scope_line_id
+            if (from_line_orig_id not in in_scope_line_id) or (
+                to_line_orig_id not in in_scope_line_id
             ):
                 continue
+
+            from_line_sorted_id = line_orig_to_sorted_map[from_line_orig_id]
+            to_line_sorted_id = line_orig_to_sorted_map[to_line_orig_id]
 
             from_line_start_token = all_sorted_line_list[
                 from_line_sorted_id
@@ -386,6 +380,14 @@ class SIBRDataset(Dataset):
                 to_line_sorted_id
             ].sorted_start_token
             to_line_end_token = all_sorted_line_list[to_line_sorted_id].sorted_end_token
+
+            if (
+                from_line_start_token is None
+                or from_line_end_token is None
+                or to_line_start_token is None
+                or to_line_end_token is None
+            ):
+                continue
 
             if from_line_start_token < to_line_start_token:
                 line_grouping_head_rel_matrix_spots.append(
