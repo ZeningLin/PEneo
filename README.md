@@ -55,6 +55,11 @@ The line extraction head identifies the position of the desired key/value lines 
 
 ## Setup
 
+For quick start, you can follow the instructions below to set up the environment, prepare the dataset, generate pre-trained weights and configurations, and fine-tune the model on the RFUND and SIBR datasets.
+
+For more detailed usage, please refer to the [documentation](docs/documentation.md).
+
+
 ### Installation
 
 ```bash
