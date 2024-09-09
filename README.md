@@ -285,7 +285,7 @@ If you find PEneo helpful, please consider citing our paper:
 
 ## Acknowledgement
 
-Part of the code is adapted from [LiLT](), [LayoutLMv2/XLM](https://github.com/microsoft/unilm/tree/master/layoutlmft), [LayoutLMv3](https://github.com/microsoft/unilm/tree/master/layoutlmv3), and [TPLinker](https://github.com/131250208/TPlinker-joint-extraction). We sincerely thank the authors for their great work.
+Part of the code is adapted from [LiLT](https://github.com/jpWang/LiLT), [LayoutLMv2/XLM](https://github.com/microsoft/unilm/tree/master/layoutlmft), [LayoutLMv3](https://github.com/microsoft/unilm/tree/master/layoutlmv3), and [TPLinker](https://github.com/131250208/TPlinker-joint-extraction). We sincerely thank the authors for their great work.
 
 
 ## Copyright
