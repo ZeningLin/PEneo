@@ -144,7 +144,7 @@ class SIBRDataset(Dataset):
                         line_right,
                         line_bottom,
                     ) = box_augmentation(
-                        (line_left, line_right, line_top, line_bottom),
+                        (line_left, line_top, line_right, line_bottom),
                         image_w,
                         image_h,
                     )
