@@ -12,6 +12,7 @@
   - [Pre-trained Utils Generation](#pre-trained-utils-generation)
 - [Model Configurations](#model-configurations)
 - [Fine-tuning](#fine-tuning)
+- [Evaluation](#evaluation)
 - [Deployment](#deployment)
   - [Export the ONNX model](#export-the-onnx-model)
   - [Inference with PyTorch weights](#inference-with-pytorch-weights)
@@ -355,6 +356,32 @@ tensorboard --logdir private_output/runs
 
 The model weights will be saved in the `private_output/weights` directory.
 
+
+## Evaluation
+
+The pair extraction performance and results will be automatically saved to the `$OUTPUT_DIR` if `--detail_eval` and `--save_eval_detail` are set to True. You can also evaluate the fine-tuned model using the following command:
+
+```bash
+export PYTHONPATH=./
+export CUDA_VISIBLE_DEVICES=0
+
+TASK_NAME=layoutlmv3_rfund_1  # Modify to the task name you want to evaluate
+OUTPUT_DIR=private_output/weights/$TASK_NAME
+LANGUAGE=en
+BOX_AUG=False
+
+python start/run_rfund.py \
+    --model_name_or_path $OUTPUT_DIR \
+    --data_dir private_data/rfund \
+    --language $LANGUAGE \
+    --apply_box_aug $BOX_AUG \
+    --output_dir $OUTPUT_DIR \
+    --do_eval \
+    --per_device_eval_batch_size 16 \
+    --fp16 \
+    --detail_eval True \
+    --save_eval_detail True
+```
 
 ## Deployment
 
