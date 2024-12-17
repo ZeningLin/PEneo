@@ -1,12 +1,33 @@
 <h1>PEneo</h1>
 
-<a href="https://arxiv.org/abs/2401.03472">
-    <img alt="arxiv-link" src="https://img.shields.io/badge/arXiv-2401.03472-B31B1B.svg?logo=arXiv"></img>
+<div>
+<a href="https://dl.acm.org/doi/10.1145/3664647.3680931">
+    <img alt="acm-link" src="https://img.shields.io/badge/Paper-ACM Digital Library-blue"></img>
 </a>
+<a href="https://arxiv.org/abs/2401.03472">
+    <img alt="arxiv-link" src="https://img.shields.io/badge/Paper-arXiv-B31B1B"></img>
+</a>
+<br>
+<a href="https://github.com/SCUT-DLVCLab/RFUND">
+    <img alt="dataset-rfund-link" src="https://img.shields.io/badge/RFUND Annotation-GitHub-black"></img>
+</a>
+<a href="https://github.com/ZeningLin/PEneo/releases/tag/SIBR-revised-v1.0">
+    <img alt="dataset-sibr-link" src="https://img.shields.io/badge/SIBR Revised Annotation-GitHub-black"></img>
+</a>
+</div>
 
-This is an official implementation of PEneo introduced in the MM'2024 paper *PEneo: Unifying Line Extraction, Line Grouping, and Entity Linking for End-to-end Document Pair Extraction*.
 
-The RFUND annotations proposed in this paper can be found at [SCUT-DLVCLab/RFUND](https://github.com/SCUT-DLVCLab/RFUND).
+Official implementation of PEneo introduced in the MM'2024 paper *PEneo: Unifying Line Extraction, Line Grouping, and Entity Linking for End-to-end Document Pair Extraction*.
+
+PEneo is designed for key-value pair extraction from form-like documents in real-world applications. Unlike previous approaches that rely on well annotated entity/paragraph/block-level OCR results, **PEneo is capable of handing line-level predictions provided by real-world OCR engines**. Entities that contain multiple text lines can be accurately extracted, and the linking relationships between key and value entities can be effectively identified. 
+
+<div align="center">
+<img src="figures/pred_orig.png" width=400>
+<img src="figures/pred_result.png" width=400 >
+</div>
+
+
+<br>
 
 > Codes in this repository have undergone modifications from our original implementation to enhance its flexibility and usability. As a result, the model performance may vary slightly from the original implementation.
 
@@ -135,8 +156,8 @@ private_data
 
 <div align="center">
 
-| Model Name              |  Link                                                                                        |
-| ----------------------- | --------------------------------------------------------------------------------------------- |
+| Model Name              | Link                                                                                            |
+| ----------------------- | ----------------------------------------------------------------------------------------------- |
 | lilt-infoxlm-base       | 🤗 [SCUT-DLVCLab/lilt-infoxlm-base](https://huggingface.co/SCUT-DLVCLab/lilt-infoxlm-base)       |
 | lilt-roberta-en-base    | 🤗 [SCUT-DLVCLab/lilt-roberta-en-base](https://huggingface.co/SCUT-DLVCLab/lilt-roberta-en-base) |
 | layoutxlm-base          | 🤗 [microsoft/layoutxlm-base](https://huggingface.co/microsoft/layoutxlm-base)                   |
@@ -297,4 +318,4 @@ For commercial use, please contact Prof. Lianwen Jin (eelwjin@scut.edu.cn).
 
 If you encounter any problems, please open an issue or contact Zening Lin (zening.lin@outlook.com).
 
-Copyright 2024, Deep Learning and Vision Computing Lab ([HomePage](http://www.dlvc-lab.net/), [GitHub](https://github.com/SCUT-DLVCLab)), South China University of Technology.
+Copyright 2024, Deep Learning and Vision Computing Lab (DLVC Lab, [HomePage](http://www.dlvc-lab.net/), [GitHub](https://github.com/SCUT-DLVCLab)), South China University of Technology.
