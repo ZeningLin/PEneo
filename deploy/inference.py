@@ -438,6 +438,7 @@ class InferenceService:
                     line_grouping_t2t_shaking=line_grouping_t2t_shaking_output,
                     text=text,
                     shaking_ind2matrix_ind=shaking_ind2matrix_ind,
+                    bbox=orig_bbox,
                 )
 
                 if self.visualize_path is not None:
